@@ -3,457 +3,1407 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>太阳系天体运动模拟器</title>
+    <title>李明 - 个人简历网站</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- AOS Animation Library -->
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    
+    <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#165DFF',
-                        secondary: '#FF7D00',
-                        dark: '#0F172A',
-                        light: '#F8FAFC'
+                        primary: '#0066cc',
+                        secondary: '#00aaff',
+                        dark: '#1a1a2e',
+                        light: '#f5f5f7',
+                        accent: '#00d4ff'
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
                     },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
                 }
             }
         }
     </script>
+    
     <style type="text/tailwindcss">
         @layer utilities {
-            .content-auto {
-                content-visibility: auto;
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
-            .planet-label {
-                @apply text-xs font-medium px-1.5 py-0.5 rounded-full backdrop-blur-sm bg-white/20 text-white;
+            .text-gradient {
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
             }
-            .info-card {
-                @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4 shadow-lg transition-all duration-300 hover:bg-white/20;
+            .bg-glass {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
             }
-            .control-btn {
-                @apply bg-primary/20 hover:bg-primary/40 text-white p-2 rounded-full transition-all duration-300;
+            .transition-all-300 {
+                transition: all 0.3s ease;
             }
+        }
+        
+        /* Custom Styles */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .timeline-container {
+            position: relative;
+        }
+        
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background-color: #0066cc;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1px;
+        }
+        
+        .timeline-item {
+            position: relative;
+            width: 50%;
+            padding: 10px 40px;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 4px solid #00aaff;
+            border-radius: 50%;
+            top: 15px;
+            z-index: 1;
+        }
+        
+        .timeline-left {
+            left: 0;
+        }
+        
+        .timeline-right {
+            left: 50%;
+        }
+        
+        .timeline-left::after {
+            right: -13px;
+        }
+        
+        .timeline-right::after {
+            left: -13px;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .timeline-container::after {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-item::after {
+                left: 18px;
+            }
+            
+            .timeline-left, .timeline-right {
+                left: 0;
+            }
+        }
+        
+        .skill-bar {
+            position: relative;
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e2e8f0;
+            overflow: hidden;
+        }
+        
+        .skill-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            border-radius: 4px;
+            transition: width 1.5s ease-in-out;
+        }
+        
+        .project-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #00aaff;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+        
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            transition: color 0.3s ease;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #00aaff, transparent);
+            transition: left 0.6s ease;
+            z-index: -1;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .profile-image {
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.5);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            border-radius: 2px;
+        }
+        
+        .section-title.centered::after {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .social-icon {
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            transform: translateY(-3px);
+            color: #00aaff;
+        }
+        
+        /* Loading Animation */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loader-circle {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-top: 5px solid #00aaff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-dark to-dark/90 text-light min-h-screen">
-    <header class="container mx-auto px-4 py-6 flex justify-between items-center">
-        <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-white">
-            <i class="fa fa-globe mr-2"></i>太阳系天体运动模拟器
-        </h1>
-        <div class="flex gap-2">
-            <button id="fullscreenBtn" class="control-btn" title="全屏模式">
-                <i class="fa fa-expand"></i>
-            </button>
-            <button id="infoBtn" class="control-btn" title="天体信息">
-                <i class="fa fa-info-circle"></i>
-            </button>
-        </div>
-    </header>
+<body class="bg-light text-gray-800 font-sans">
+    <!-- Loading Screen -->
+    <div class="loader">
+        <div class="loader-circle"></div>
+    </div>
 
-    <main class="container mx-auto px-4 py-6">
-        <!-- 模拟器主体区域 -->
-        <div class="relative w-full h-[70vh] bg-dark/50 rounded-xl overflow-hidden border border-white/10 shadow-xl mb-6">
-            <canvas id="solarSystem" class="w-full h-full"></canvas>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full bg-white bg-opacity-90 backdrop-blur-md shadow-md z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#hero" class="text-2xl font-bold text-primary flex items-center">
+                <span class="text-gradient bg-gradient-to-r from-primary to-secondary">李明</span>
+                <span class="ml-2 text-sm text-gray-500">/ 软件工程师</span>
+            </a>
             
-            <!-- 控制面板 -->
-            <div class="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-center gap-3 bg-dark/60 backdrop-blur-md rounded-lg p-3 border border-white/10">
-                <button id="pauseBtn" class="bg-secondary hover:bg-secondary/80 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center">
-                    <i class="fa fa-pause mr-2"></i>暂停
-                </button>
-                <button id="resetBtn" class="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center">
-                    <i class="fa fa-refresh mr-2"></i>重置
-                </button>
-                
-                <div class="flex items-center gap-2">
-                    <label for="speedRange" class="text-sm">速度:</label>
-                    <input type="range" id="speedRange" min="0.1" max="5" step="0.1" value="1" 
-                        class="w-32 accent-primary">
-                    <span id="speedValue" class="text-sm">1x</span>
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex space-x-8">
+                <a href="#about" class="nav-link text-gray-700 hover:text-primary active">关于我</a>
+                <a href="#experience" class="nav-link text-gray-700 hover:text-primary">经历</a>
+                <a href="#projects" class="nav-link text-gray-700 hover:text-primary">项目</a>
+                <a href="#skills" class="nav-link text-gray-700 hover:text-primary">技能</a>
+                <a href="#awards" class="nav-link text-gray-700 hover:text-primary">奖项</a>
+                <a href="#contact" class="nav-link text-gray-700 hover:text-primary">联系我</a>
+            </div>
+            
+            <!-- Mobile Navigation Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white shadow-lg absolute w-full">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+                <a href="#about" class="text-gray-700 hover:text-primary py-2 mobile-nav-link">关于我</a>
+                <a href="#experience" class="text-gray-700 hover:text-primary py-2 mobile-nav-link">经历</a>
+                <a href="#projects" class="text-gray-700 hover:text-primary py-2 mobile-nav-link">项目</a>
+                <a href="#skills" class="text-gray-700 hover:text-primary py-2 mobile-nav-link">技能</a>
+                <a href="#awards" class="text-gray-700 hover:text-primary py-2 mobile-nav-link">奖项</a>
+                <a href="#contact" class="text-gray-700 hover:text-primary py-2 mobile-nav-link">联系我</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="min-h-screen flex items-center pt-16 bg-gradient-to-br from-white to-blue-50">
+        <div class="container mx-auto px-4 py-16">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0" data-aos="fade-right" data-aos-duration="1000">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+                        <span class="text-gradient bg-gradient-to-r from-primary to-secondary">你好，我是李明</span>
+                    </h1>
+                    <h2 class="text-xl md:text-2xl text-gray-600 mb-6">计算机科学专业 | 软件工程师</h2>
+                    <p class="text-lg text-gray-700 mb-8 max-w-lg">
+                        我是一名充满激情的软件工程师，专注于Web开发、移动应用开发和数据可视化。
+                        我热爱解决复杂问题，创造高效、用户友好的技术解决方案。
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#contact" class="btn-primary bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all-300 transform hover:scale-105">
+                            联系我
+                        </a>
+                        <a href="#projects" class="bg-white border border-primary text-primary hover:bg-primary/5 font-medium py-3 px-6 rounded-lg transition-all-300 transform hover:scale-105">
+                            查看我的项目
+                        </a>
+                    </div>
+                    <div class="flex mt-8 space-x-4">
+                        <a href="#" class="social-icon text-gray-600 hover:text-primary">
+                            <i class="fa fa-github text-2xl"></i>
+                        </a>
+                        <a href="#" class="social-icon text-gray-600 hover:text-primary">
+                            <i class="fa fa-linkedin text-2xl"></i>
+                        </a>
+                        <a href="#" class="social-icon text-gray-600 hover:text-primary">
+                            <i class="fa fa-twitter text-2xl"></i>
+                        </a>
+                        <a href="#" class="social-icon text-gray-600 hover:text-primary">
+                            <i class="fa fa-codepen text-2xl"></i>
+                        </a>
+                    </div>
                 </div>
-                
-                <div class="flex items-center gap-2">
-                    <label for="zoomRange" class="text-sm">缩放:</label>
-                    <input type="range" id="zoomRange" min="0.5" max="2" step="0.1" value="1" 
-                        class="w-32 accent-primary">
-                    <span id="zoomValue" class="text-sm">1x</span>
-                </div>
-                
-                <div class="flex items-center gap-2">
-                    <label for="labelsToggle" class="text-sm">显示标签:</label>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="labelsToggle" class="sr-only peer" checked>
-                        <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-                    </label>
+                <div class="md:w-1/2 flex justify-center" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-lg opacity-30 animate-pulse"></div>
+                        <img src="https://p3-doubao-search-sign.byteimg.com/labis/image/48cf9d6cf5d98899b28aeb46e24f03af~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1779717910&x-signature=8DEsiuF7P4QlBZP0O0pOwUEPDi8%3D" 
+                             alt="李明的照片" 
+                             class="profile-image relative z-10 w-64 h-64 object-cover rounded-full border-4 border-white shadow-xl">
+                    </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- 行星信息卡片 -->
-        <div id="planetInfo" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="info-card">
-                <h3 class="text-lg font-bold mb-2 flex items-center">
-                    <div class="w-5 h-5 rounded-full bg-[#ff7d00] mr-2"></div>太阳
-                </h3>
-                <p class="text-sm text-gray-300">太阳系的中心天体，占有太阳系总体质量的99.86%。</p>
-            </div>
-            <div class="info-card">
-                <h3 class="text-lg font-bold mb-2 flex items-center">
-                    <div class="w-3 h-3 rounded-full bg-[#a8a8a8] mr-2"></div>水星
-                </h3>
-                <p class="text-sm text-gray-300">离太阳最近的行星，表面布满环形山，没有大气层。</p>
-            </div>
-            <div class="info-card">
-                <h3 class="text-lg font-bold mb-2 flex items-center">
-                    <div class="w-4 h-4 rounded-full bg-[#e39e58] mr-2"></div>金星
-                </h3>
-                <p class="text-sm text-gray-300">被称为地球的"姊妹星"，表面有浓密的二氧化碳大气层。</p>
-            </div>
-            <div class="info-card">
-                <h3 class="text-lg font-bold mb-2 flex items-center">
-                    <div class="w-4 h-4 rounded-full bg-[#2e86c1] mr-2"></div>地球
-                </h3>
-                <p class="text-sm text-gray-300">目前已知唯一存在生命的行星，有液态水和适宜的大气层。</p>
-            </div>
-        </div>
-
-        <!-- 教学内容 -->
-        <div class="bg-dark/30 rounded-xl p-6 border border-white/10 mb-6">
-            <h2 class="text-xl font-bold mb-4 flex items-center">
-                <i class="fa fa-book mr-2"></i>天体运动科普知识
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title text-3xl md:text-4xl font-bold mb-16 text-center" data-aos="fade-up">
+                关于我
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <h3 class="text-lg font-semibold mb-2">太阳系的组成</h3>
-                    <p class="text-gray-300 mb-3">太阳系是以太阳为中心，由八大行星、矮行星、卫星和无数的小行星、彗星等组成的天体系统。八大行星按照离太阳由近及远的顺序为：水星、金星、地球、火星、木星、土星、天王星和海王星。</p>
-                    
-                    <h3 class="text-lg font-semibold mb-2">行星运动规律</h3>
-                    <p class="text-gray-300 mb-3">行星围绕太阳运行的轨道是椭圆形的，太阳位于椭圆的一个焦点上。离太阳越近的行星，公转周期越短；离太阳越远的行星，公转周期越长。</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div data-aos="fade-right">
+                    <h3 class="text-2xl font-bold mb-4 text-primary">个人简介</h3>
+                    <p class="text-gray-700 mb-6">
+                        我是一名计算机科学专业的毕业生，拥有扎实的编程基础和丰富的项目经验。
+                        我热衷于学习新技术，并将其应用到实际项目中解决问题。
+                    </p>
+                    <p class="text-gray-700 mb-6">
+                        在大学期间，我积极参与各类编程竞赛和开源项目，获得了多项奖项和荣誉。
+                        我相信技术应该是易用且有意义的，因此我注重用户体验和代码质量。
+                    </p>
+                    <p class="text-gray-700">
+                        除了编程，我还喜欢阅读技术博客、参加技术社区活动，以及分享我的知识和经验。
+                        我正在寻找一个能够让我发挥才华、不断成长的工作机会。
+                    </p>
                 </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-2">开普勒定律</h3>
-                    <p class="text-gray-300 mb-3">德国天文学家开普勒发现了行星运动的三大定律：</p>
-                    <ol class="list-decimal list-inside text-gray-300 space-y-1">
-                        <li>轨道定律：行星绕太阳运行的轨道是椭圆，太阳位于椭圆的一个焦点上。</li>
-                        <li>面积定律：行星与太阳的连线在相等时间内扫过相等的面积。</li>
-                        <li>周期定律：行星绕太阳运行周期的平方与轨道半长轴的立方成正比。</li>
-                    </ol>
+                
+                <div data-aos="fade-left" data-aos-delay="200">
+                    <div class="bg-gray-50 rounded-xl p-6 shadow-md">
+                        <h3 class="text-2xl font-bold mb-6 text-primary">基本信息</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="w-1/3 font-medium text-gray-600">姓名:</div>
+                                <div class="w-2/3 text-gray-800">李明</div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-1/3 font-medium text-gray-600">学历:</div>
+                                <div class="w-2/3 text-gray-800">计算机科学学士</div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-1/3 font-medium text-gray-600">毕业院校:</div>
+                                <div class="w-2/3 text-gray-800">北京大学</div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-1/3 font-medium text-gray-600">邮箱:</div>
+                                <div class="w-2/3 text-gray-800">liming@example.com</div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-1/3 font-medium text-gray-600">电话:</div>
+                                <div class="w-2/3 text-gray-800">+86 138 1234 5678</div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-1/3 font-medium text-gray-600">地址:</div>
+                                <div class="w-2/3 text-gray-800">北京市海淀区</div>
+                            </div>
+                        </div>
+                        <div class="mt-8">
+                            <a href="#" class="inline-flex items-center text-primary hover:text-secondary transition-all-300">
+                                <i class="fa fa-download mr-2"></i> 下载简历
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </main>
+    </section>
 
-    <footer class="container mx-auto px-4 py-6 text-center text-gray-500 text-sm">
-        <p>太阳系天体运动模拟器 &copy; 2025 | 为低年级科学课堂设计</p>
+    <!-- Experience Section -->
+    <section id="experience" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title text-3xl md:text-4xl font-bold mb-16 text-center" data-aos="fade-up">
+                经历
+            </h2>
+            
+            <!-- Experience Tabs -->
+            <div class="flex justify-center mb-12" data-aos="fade-up" data-aos-delay="100">
+                <div class="inline-flex rounded-md shadow-sm" role="group">
+                    <button type="button" class="experience-tab active px-6 py-3 text-sm font-medium bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-primary focus:z-10 focus:text-primary" data-tab="work">
+                        工作经历
+                    </button>
+                    <button type="button" class="experience-tab px-6 py-3 text-sm font-medium bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-primary focus:z-10 focus:text-primary" data-tab="education">
+                        教育经历
+                    </button>
+                    <button type="button" class="experience-tab px-6 py-3 text-sm font-medium bg-white border border-gray-200 rounded-r-lg hover:bg-gray-100 hover:text-primary focus:z-10 focus:text-primary" data-tab="internship">
+                        实习经历
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Work Experience Content -->
+            <div id="work-content" class="experience-content active">
+                <div class="timeline-container">
+                    <div class="timeline-item timeline-left" data-aos="fade-right">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="text-xl font-bold text-primary mb-2">高级软件工程师</h3>
+                            <h4 class="text-gray-600 mb-3">科技创新有限公司</h4>
+                            <p class="text-gray-500 text-sm mb-4">2023年6月 - 至今</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li>负责公司核心产品的后端开发，使用Java和Spring Boot框架</li>
+                                <li>设计并实现了分布式系统架构，提升了系统性能30%</li>
+                                <li>优化数据库查询，减少了响应时间，提高了用户体验</li>
+                                <li>指导初级开发人员，参与代码审查和技术培训</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item timeline-right" data-aos="fade-left">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="text-xl font-bold text-primary mb-2">软件工程师</h3>
+                            <h4 class="text-gray-600 mb-3">互联网科技有限公司</h4>
+                            <p class="text-gray-500 text-sm mb-4">2021年7月 - 2023年5月</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li>参与开发公司的Web应用，使用React和Node.js技术栈</li>
+                                <li>实现了用户认证系统和权限管理模块</li>
+                                <li>开发了RESTful API，支持移动端和Web端的数据交互</li>
+                                <li>使用Docker容器化应用，简化了部署流程</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Education Content -->
+            <div id="education-content" class="experience-content hidden">
+                <div class="timeline-container">
+                    <div class="timeline-item timeline-left" data-aos="fade-right">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="text-xl font-bold text-primary mb-2">计算机科学与技术</h3>
+                            <h4 class="text-gray-600 mb-3">北京大学</h4>
+                            <p class="text-gray-500 text-sm mb-4">2017年9月 - 2021年6月</p>
+                            <p class="text-gray-700 mb-4">
+                                主修课程：数据结构与算法、计算机网络、操作系统、数据库系统、面向对象编程、人工智能导论
+                            </p>
+                            <p class="text-gray-700">
+                                毕业论文：《基于深度学习的图像识别算法研究》，导师：张教授
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item timeline-right" data-aos="fade-left">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="text-xl font-bold text-primary mb-2">交换生项目</h3>
+                            <h4 class="text-gray-600 mb-3">斯坦福大学</h4>
+                            <p class="text-gray-500 text-sm mb-4">2019年9月 - 2020年3月</p>
+                            <p class="text-gray-700 mb-4">
+                                参与了斯坦福大学计算机科学系的交换生项目，学习了高级算法、机器学习和分布式系统等课程。
+                            </p>
+                            <p class="text-gray-700">
+                                GPA：3.9/4.0，获得优秀交换生称号
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Internship Content -->
+            <div id="internship-content" class="experience-content hidden">
+                <div class="timeline-container">
+                    <div class="timeline-item timeline-left" data-aos="fade-right">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="text-xl font-bold text-primary mb-2">软件开发实习生</h3>
+                            <h4 class="text-gray-600 mb-3">科技有限公司</h4>
+                            <p class="text-gray-500 text-sm mb-4">2020年7月 - 2020年9月</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li>参与开发公司的移动应用后端API，使用Python和Flask框架</li>
+                                <li>实现了数据处理和分析功能，优化了数据查询效率</li>
+                                <li>编写单元测试，提高了代码质量和稳定性</li>
+                                <li>参与团队每日站会和代码审查，学习敏捷开发流程</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item timeline-right" data-aos="fade-left">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="text-xl font-bold text-primary mb-2">前端开发实习生</h3>
+                            <h4 class="text-gray-600 mb-3">互联网公司</h4>
+                            <p class="text-gray-500 text-sm mb-4">2019年7月 - 2019年9月</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li>使用HTML、CSS和JavaScript开发公司官网和产品页面</li>
+                                <li>实现了响应式设计，确保网站在不同设备上的良好显示</li>
+                                <li>使用Vue.js框架开发了交互式组件，提升了用户体验</li>
+                                <li>参与UI设计讨论，提出改进建议并实现</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title text-3xl md:text-4xl font-bold mb-16 text-center" data-aos="fade-up">
+                项目
+            </h2>
+            
+            <!-- Project Filter -->
+            <div class="flex justify-center mb-12 flex-wrap gap-2" data-aos="fade-up" data-aos-delay="100">
+                <button class="project-filter-btn active px-4 py-2 rounded-full bg-primary text-white hover:bg-primary/90 transition-all-300" data-filter="all">
+                    全部
+                </button>
+                <button class="project-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all-300" data-filter="web">
+                    Web开发
+                </button>
+                <button class="project-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all-300" data-filter="mobile">
+                    移动应用
+                </button>
+                <button class="project-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all-300" data-filter="data">
+                    数据可视化
+                </button>
+            </div>
+            
+            <!-- Projects Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project 1 -->
+                <div class="project-card bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300" data-category="web" data-aos="fade-up">
+                    <div class="relative overflow-hidden h-48">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/aedd7eb336d742cc937dc4c960898979~tplv-a9rns2rl98-image.image?rcl=2025112622050156E052FC20A610F8CAED&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1766757921&x-signature=bu0z6tgVoWPh1zTtvbGcYecvcME%3D" 
+                             alt="现代Web设计项目" 
+                             class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-2 py-1 rounded">
+                            Web开发
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">现代Web设计系统</h3>
+                        <p class="text-gray-600 mb-4">
+                            基于HTML5、CSS3和JavaScript开发的响应式Web设计系统，包含多种UI组件和模板。
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">HTML5</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">CSS3</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">JavaScript</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Sass</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="#" class="text-primary hover:text-secondary transition-all-300 flex items-center">
+                                <span>查看详情</span>
+                                <i class="fa fa-arrow-right ml-2"></i>
+                            </a>
+                            <a href="#" class="text-gray-600 hover:text-primary transition-all-300">
+                                <i class="fa fa-github text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 2 -->
+                <div class="project-card bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300" data-category="mobile" data-aos="fade-up" data-aos-delay="100">
+                    <div class="relative overflow-hidden h-48">
+                        <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/f66d2e686a114d20aeafd4222dcd6e41~tplv-a9rns2rl98-image.image?rcl=2025112622050156E052FC20A610F8CAED&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1766757920&x-signature=DHMPNqk9MsmXn5k8HfkN1I40%2FnM%3D" 
+                             alt="移动应用开发项目" 
+                             class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute top-4 right-4 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">
+                            移动应用
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">智能健康管理应用</h3>
+                        <p class="text-gray-600 mb-4">
+                            一款集健康数据跟踪、运动记录和饮食管理于一体的移动应用，支持iOS和Android平台。
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">React Native</span>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Firebase</span>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Redux</span>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">REST API</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="#" class="text-primary hover:text-secondary transition-all-300 flex items-center">
+                                <span>查看详情</span>
+                                <i class="fa fa-arrow-right ml-2"></i>
+                            </a>
+                            <a href="#" class="text-gray-600 hover:text-primary transition-all-300">
+                                <i class="fa fa-github text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 3 -->
+                <div class="project-card bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300" data-category="data" data-aos="fade-up" data-aos-delay="200">
+                    <div class="relative overflow-hidden h-48">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/ee9e83994b9a49c388b0472352eb006a~tplv-a9rns2rl98-image.image?rcl=2025112622050156E052FC20A610F8CAED&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1766757929&x-signature=ctp95TEn6UrybQYGlnYR%2FDluXJg%3D" 
+                             alt="数据可视化项目" 
+                             class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute top-4 right-4 bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded">
+                            数据可视化
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">用户行为分析平台</h3>
+                        <p class="text-gray-600 mb-4">
+                            基于大数据技术构建的用户行为分析平台，提供实时数据可视化和深度分析功能。
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">D3.js</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Chart.js</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Node.js</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">MongoDB</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="#" class="text-primary hover:text-secondary transition-all-300 flex items-center">
+                                <span>查看详情</span>
+                                <i class="fa fa-arrow-right ml-2"></i>
+                            </a>
+                            <a href="#" class="text-gray-600 hover:text-primary transition-all-300">
+                                <i class="fa fa-github text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 4 -->
+                <div class="project-card bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300" data-category="web" data-aos="fade-up">
+                    <div class="relative overflow-hidden h-48 bg-gray-200">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fa fa-shopping-cart text-5xl text-gray-400"></i>
+                        </div>
+                        <div class="absolute top-4 right-4 bg-primary text-white text-xs font-bold px-2 py-1 rounded">
+                            Web开发
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">电子商务平台</h3>
+                        <p class="text-gray-600 mb-4">
+                            全功能电子商务网站，支持商品展示、购物车、支付集成和用户管理等功能。
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">React</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Node.js</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Express</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">MongoDB</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="#" class="text-primary hover:text-secondary transition-all-300 flex items-center">
+                                <span>查看详情</span>
+                                <i class="fa fa-arrow-right ml-2"></i>
+                            </a>
+                            <a href="#" class="text-gray-600 hover:text-primary transition-all-300">
+                                <i class="fa fa-github text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 5 -->
+                <div class="project-card bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300" data-category="mobile" data-aos="fade-up" data-aos-delay="100">
+                    <div class="relative overflow-hidden h-48 bg-gray-200">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fa fa-map-marker text-5xl text-gray-400"></i>
+                        </div>
+                        <div class="absolute top-4 right-4 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">
+                            移动应用
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">城市导航应用</h3>
+                        <p class="text-gray-600 mb-4">
+                            基于地理位置的城市导航应用，提供实时交通信息、路线规划和景点推荐功能。
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Flutter</span>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Google Maps API</span>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Firebase</span>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Geolocation</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="#" class="text-primary hover:text-secondary transition-all-300 flex items-center">
+                                <span>查看详情</span>
+                                <i class="fa fa-arrow-right ml-2"></i>
+                            </a>
+                            <a href="#" class="text-gray-600 hover:text-primary transition-all-300">
+                                <i class="fa fa-github text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 6 -->
+                <div class="project-card bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300" data-category="data" data-aos="fade-up" data-aos-delay="200">
+                    <div class="relative overflow-hidden h-48 bg-gray-200">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fa fa-line-chart text-5xl text-gray-400"></i>
+                        </div>
+                        <div class="absolute top-4 right-4 bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded">
+                            数据可视化
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">股票市场分析工具</h3>
+                        <p class="text-gray-600 mb-4">
+                            实时股票市场数据可视化和分析工具，支持多种技术指标和预测模型。
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Python</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Plotly</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Pandas</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Flask</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="#" class="text-primary hover:text-secondary transition-all-300 flex items-center">
+                                <span>查看详情</span>
+                                <i class="fa fa-arrow-right ml-2"></i>
+                            </a>
+                            <a href="#" class="text-gray-600 hover:text-primary transition-all-300">
+                                <i class="fa fa-github text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title text-3xl md:text-4xl font-bold mb-16 text-center" data-aos="fade-up">
+                技能
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Technical Skills -->
+                <div data-aos="fade-right">
+                    <h3 class="text-2xl font-bold mb-8 text-primary">技术技能</h3>
+                    
+                    <div class="space-y-6">
+                        <!-- Skill 1 -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="font-medium text-gray-700">JavaScript / TypeScript</span>
+                                <span class="text-gray-600">95%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 0%;" data-width="95%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Skill 2 -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="font-medium text-gray-700">HTML / CSS</span>
+                                <span class="text-gray-600">90%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 0%;" data-width="90%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Skill 3 -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="font-medium text-gray-700">React / Vue</span>
+                                <span class="text-gray-600">85%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 0%;" data-width="85%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Skill 4 -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="font-medium text-gray-700">Node.js / Express</span>
+                                <span class="text-gray-600">80%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 0%;" data-width="80%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Skill 5 -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="font-medium text-gray-700">Python</span>
+                                <span class="text-gray-600">75%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 0%;" data-width="75%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Skill 6 -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="font-medium text-gray-700">SQL / NoSQL</span>
+                                <span class="text-gray-600">70%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 0%;" data-width="70%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Skills Chart -->
+                <div data-aos="fade-left" data-aos-delay="200">
+                    <h3 class="text-2xl font-bold mb-8 text-primary">技能雷达图</h3>
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <canvas id="skillsChart" width="400" height="400"></canvas>
+                    </div>
+                    
+                    <!-- Additional Skills -->
+                    <div class="mt-8 bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold mb-4 text-primary">其他技能</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">Git</span>
+                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">Docker</span>
+                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">AWS</span>
+                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">CI/CD</span>
+                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">Agile</span>
+                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">Scrum</span>
+                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">UI/UX</span>
+                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">REST API</span>
+                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">GraphQL</span>
+                            <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">Machine Learning</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Awards Section -->
+    <section id="awards" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title text-3xl md:text-4xl font-bold mb-16 text-center" data-aos="fade-up">
+                奖项与证书
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Award 1 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300" data-aos="fade-up">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-trophy text-yellow-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">全国大学生程序设计竞赛金奖</h3>
+                                <p class="text-gray-500 text-sm">2020年</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-700">
+                            在全国大学生程序设计竞赛中，与团队合作解决了复杂的算法问题，获得全国金奖。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Award 2 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-certificate text-blue-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">Google开发者认证</h3>
+                                <p class="text-gray-500 text-sm">2021年</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-700">
+                            获得Google Cloud专业架构师认证，证明了在设计和管理Google Cloud解决方案方面的专业知识。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Award 3 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-code text-green-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">开源贡献奖</h3>
+                                <p class="text-gray-500 text-sm">2022年</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-700">
+                            因对多个开源项目的重要贡献而获得认可，包括修复关键漏洞和开发新功能。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Award 4 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300" data-aos="fade-up">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-graduation-cap text-purple-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">优秀毕业生</h3>
+                                <p class="text-gray-500 text-sm">2021年</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-700">
+                            因学术成绩优异、科研成果突出和社会实践表现出色，被评为北京大学优秀毕业生。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Award 5 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-laptop text-red-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">黑客马拉松冠军</h3>
+                                <p class="text-gray-500 text-sm">2020年</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-700">
+                            在48小时内与团队合作开发了一款创新的移动应用，获得黑客马拉松比赛冠军。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Award 6 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fa fa-language text-orange-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">英语流利说认证</h3>
+                                <p class="text-gray-500 text-sm">2019年</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-700">
+                            获得英语流利说高级认证，证明了在专业环境中使用英语进行有效沟通的能力。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gradient-to-br from-primary/5 to-secondary/5">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title text-3xl md:text-4xl font-bold mb-16 text-center" data-aos="fade-up">
+                联系我
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Contact Form -->
+                <div class="bg-white rounded-xl shadow-md p-8" data-aos="fade-right">
+                    <h3 class="text-2xl font-bold mb-6 text-primary">发送消息</h3>
+                    <form id="contact-form">
+                        <div class="mb-6">
+                            <label for="name" class="block text-gray-700 font-medium mb-2">姓名</label>
+                            <input type="text" id="name" name="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300" placeholder="请输入您的姓名" required>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="email" class="block text-gray-700 font-medium mb-2">邮箱</label>
+                            <input type="email" id="email" name="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300" placeholder="请输入您的邮箱" required>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="subject" class="block text-gray-700 font-medium mb-2">主题</label>
+                            <input type="text" id="subject" name="subject" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300" placeholder="请输入消息主题" required>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="message" class="block text-gray-700 font-medium mb-2">消息</label>
+                            <textarea id="message" name="message" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300" placeholder="请输入您的消息" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all-300 transform hover:scale-105">
+                            发送消息
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Contact Info -->
+                <div data-aos="fade-left" data-aos-delay="200">
+                    <h3 class="text-2xl font-bold mb-6 text-primary">联系信息</h3>
+                    
+                    <div class="bg-white rounded-xl shadow-md p-8 mb-8">
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fa fa-envelope text-primary text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800 mb-1">邮箱</h4>
+                                    <p class="text-gray-600">liming@example.com</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fa fa-phone text-primary text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800 mb-1">电话</h4>
+                                    <p class="text-gray-600">+86 138 1234 5678</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fa fa-map-marker text-primary text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800 mb-1">地址</h4>
+                                    <p class="text-gray-600">北京市海淀区中关村南大街5号</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Media -->
+                    <div class="bg-white rounded-xl shadow-md p-8">
+                        <h4 class="font-medium text-gray-800 mb-4">社交媒体</h4>
+                        <div class="flex space-x-4">
+                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-all duration-300">
+                                <i class="fa fa-github"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-all duration-300">
+                                <i class="fa fa-linkedin"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-all duration-300">
+                                <i class="fa fa-twitter"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-all duration-300">
+                                <i class="fa fa-codepen"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-all duration-300">
+                                <i class="fa fa-stack-overflow"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-2xl font-bold mb-2">李明</h3>
+                    <p class="text-gray-400">软件工程师 | Web开发 | 移动应用开发</p>
+                </div>
+                
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="#about" class="text-gray-400 hover:text-white transition-all duration-300">关于我</a>
+                    <a href="#experience" class="text-gray-400 hover:text-white transition-all duration-300">经历</a>
+                    <a href="#projects" class="text-gray-400 hover:text-white transition-all duration-300">项目</a>
+                    <a href="#skills" class="text-gray-400 hover:text-white transition-all duration-300">技能</a>
+                    <a href="#awards" class="text-gray-400 hover:text-white transition-all duration-300">奖项</a>
+                    <a href="#contact" class="text-gray-400 hover:text-white transition-all duration-300">联系我</a>
+                </div>
+            </div>
+            
+            <hr class="border-gray-800 my-8">
+            
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0">© 2025 李明. 保留所有权利.</p>
+                
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-all duration-300">
+                        <i class="fa fa-github"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-all duration-300">
+                        <i class="fa fa-linkedin"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-all duration-300">
+                        <i class="fa fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-all duration-300">
+                        <i class="fa fa-codepen"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
     </footer>
 
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 z-50">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript -->
     <script>
+        // Initialize AOS Animation Library
         document.addEventListener('DOMContentLoaded', function() {
-            // 获取Canvas元素并设置上下文
-            const canvas = document.getElementById('solarSystem');
-            const ctx = canvas.getContext('2d');
+            // Show loading screen for 1 second
+            setTimeout(function() {
+                document.querySelector('.loader').classList.add('hidden');
+            }, 1000);
             
-            // 设置Canvas尺寸
-            function resizeCanvas() {
-                const container = canvas.parentElement;
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
-            }
-            
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-            
-            // 天体数据
-            const celestialBodies = [
-                { name: "太阳", radius: 30, color: "#ff7d00", orbitRadius: 0, orbitSpeed: 0, angle: 0, tilt: 0 },
-                { name: "水星", radius: 4, color: "#a8a8a8", orbitRadius: 70, orbitSpeed: 0.04, angle: 0, tilt: 0 },
-                { name: "金星", radius: 7, color: "#e39e58", orbitRadius: 100, orbitSpeed: 0.015, angle: 0, tilt: 0 },
-                { name: "地球", radius: 7.5, color: "#2e86c1", orbitRadius: 140, orbitSpeed: 0.01, angle: 0, tilt: 23.5 },
-                { name: "月球", radius: 2, color: "#d0d0d0", orbitRadius: 20, orbitSpeed: 0.05, angle: 0, tilt: 0, parent: 3 },
-                { name: "火星", radius: 5, color: "#e74c3c", orbitRadius: 180, orbitSpeed: 0.008, angle: 0, tilt: 25 },
-                { name: "木星", radius: 20, color: "#f39c12", orbitRadius: 230, orbitSpeed: 0.002, angle: 0, tilt: 3 },
-                { name: "土星", radius: 16, color: "#f1c40f", orbitRadius: 300, orbitSpeed: 0.0009, angle: 0, tilt: 26.7, ring: { innerRadius: 20, outerRadius: 30, color: "#d4ac0d" } },
-                { name: "天王星", radius: 12, color: "#3498db", orbitRadius: 350, orbitSpeed: 0.0004, angle: 0, tilt: 97.8 },
-                { name: "海王星", radius: 11, color: "#2980b9", orbitRadius: 400, orbitSpeed: 0.0001, angle: 0, tilt: 28.3 }
-            ];
-            
-            // 动画控制变量
-            let isPaused = false;
-            let animationSpeed = 1;
-            let zoomLevel = 1;
-            let showLabels = true;
-            
-            // 计算中心坐标
-            function getCenter() {
-                return {
-                    x: canvas.width / 2,
-                    y: canvas.height / 2
-                };
-            }
-            
-            // 绘制天体轨道
-            function drawOrbit(orbitRadius, center) {
-                ctx.beginPath();
-                ctx.arc(center.x, center.y, orbitRadius, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            }
-            
-            // 绘制天体
-            function drawCelestialBody(body, center) {
-                // 计算天体位置
-                let x, y;
-                if (body.orbitRadius === 0) {
-                    // 太阳位于中心
-                    x = center.x;
-                    y = center.y;
-                } else {
-                    const parent = body.parent !== undefined ? celestialBodies[body.parent] : null;
-                    const parentX = parent ? parent.x : center.x;
-                    const parentY = parent ? parent.y : center.y;
-                    
-                    x = parentX + Math.cos(body.angle) * body.orbitRadius * zoomLevel;
-                    y = parentY + Math.sin(body.angle) * body.orbitRadius * zoomLevel;
-                    
-                    // 存储位置用于卫星
-                    body.x = x;
-                    body.y = y;
-                }
-                
-                // 绘制轨道
-                if (body.orbitRadius > 0) {
-                    const orbitCenter = body.parent !== undefined 
-                        ? { x: celestialBodies[body.parent].x, y: celestialBodies[body.parent].y } 
-                        : center;
-                    drawOrbit(body.orbitRadius * zoomLevel, orbitCenter);
-                }
-                
-                // 绘制行星环
-                if (body.ring) {
-                    ctx.beginPath();
-                    ctx.ellipse(x, y, body.ring.outerRadius * zoomLevel, body.ring.innerRadius * zoomLevel, 
-                        body.tilt * Math.PI / 180, 0, Math.PI * 2);
-                    ctx.strokeStyle = body.ring.color;
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-                }
-                
-                // 绘制天体
-                ctx.beginPath();
-                ctx.arc(x, y, body.radius * zoomLevel, 0, Math.PI * 2);
-                
-                // 创建径向渐变
-                const gradient = ctx.createRadialGradient(
-                    x - body.radius * zoomLevel * 0.3, y - body.radius * zoomLevel * 0.3, 0,
-                    x, y, body.radius * zoomLevel
-                );
-                
-                if (body.name === "太阳") {
-                    gradient.addColorStop(0, "#fffacd");
-                    gradient.addColorStop(0.5, body.color);
-                    gradient.addColorStop(1, "#ff4500");
-                } else {
-                    gradient.addColorStop(0, body.color);
-                    gradient.addColorStop(1, darkenColor(body.color, 0.7));
-                }
-                
-                ctx.fillStyle = gradient;
-                ctx.fill();
-                
-                // 添加发光效果（仅太阳）
-                if (body.name === "太阳") {
-                    ctx.shadowColor = body.color;
-                    ctx.shadowBlur = 20 * zoomLevel;
-                    ctx.beginPath();
-                    ctx.arc(x, y, body.radius * zoomLevel, 0, Math.PI * 2);
-                    ctx.fillStyle = body.color + "40"; // 添加透明度
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                }
-                
-                // 绘制标签
-                if (showLabels) {
-                    ctx.fillStyle = 'white';
-                    ctx.font = 'bold ' + Math.max(8, 12 * zoomLevel) + 'px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(body.name, x, y - body.radius * zoomLevel - 5);
-                }
-            }
-            
-            // 辅助函数：使颜色变暗
-            function darkenColor(color, amount) {
-                // 处理十六进制颜色
-                if (color.startsWith('#')) {
-                    let r = parseInt(color.substr(1, 2), 16);
-                    let g = parseInt(color.substr(3, 2), 16);
-                    let b = parseInt(color.substr(5, 2), 16);
-                    
-                    r = Math.max(0, Math.floor(r * amount));
-                    g = Math.max(0, Math.floor(g * amount));
-                    b = Math.max(0, Math.floor(b * amount));
-                    
-                    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-                }
-                return color;
-            }
-            
-            // 动画循环
-            function animate() {
-                if (!isPaused) {
-                    // 更新天体角度
-                    celestialBodies.forEach(body => {
-                        body.angle += body.orbitSpeed * animationSpeed;
-                    });
-                }
-                
-                // 清空画布
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // 绘制星空背景
-                drawStars();
-                
-                // 获取中心坐标
-                const center = getCenter();
-                
-                // 绘制所有天体
-                celestialBodies.forEach(body => {
-                    drawCelestialBody(body, center);
-                });
-                
-                requestAnimationFrame(animate);
-            }
-            
-            // 绘制星空背景
-            function drawStars() {
-                ctx.fillStyle = '#000a1f';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // 随机绘制星星
-                ctx.fillStyle = 'white';
-                for (let i = 0; i < 200; i++) {
-                    const x = Math.random() * canvas.width;
-                    const y = Math.random() * canvas.height;
-                    const size = Math.random() * 1.5;
-                    
-                    // 闪烁效果
-                    const alpha = 0.5 + Math.sin(Date.now() * 0.001 + i) * 0.5;
-                    ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-                    
-                    ctx.beginPath();
-                    ctx.arc(x, y, size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-            
-            // 初始化动画
-            animate();
-            
-            // 事件监听器
-            document.getElementById('pauseBtn').addEventListener('click', function() {
-                isPaused = !isPaused;
-                this.innerHTML = isPaused ? '<i class="fa fa-play mr-2"></i>继续' : '<i class="fa fa-pause mr-2"></i>暂停';
+            // Initialize AOS
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
             });
             
-            document.getElementById('resetBtn').addEventListener('click', function() {
-                celestialBodies.forEach(body => {
-                    body.angle = 0;
-                });
-            });
-            
-            const speedRange = document.getElementById('speedRange');
-            const speedValue = document.getElementById('speedValue');
-            speedRange.addEventListener('input', function() {
-                animationSpeed = parseFloat(this.value);
-                speedValue.textContent = animationSpeed.toFixed(1) + 'x';
-            });
-            
-            const zoomRange = document.getElementById('zoomRange');
-            const zoomValue = document.getElementById('zoomValue');
-            zoomRange.addEventListener('input', function() {
-                zoomLevel = parseFloat(this.value);
-                zoomValue.textContent = zoomLevel.toFixed(1) + 'x';
-            });
-            
-            document.getElementById('labelsToggle').addEventListener('change', function() {
-                showLabels = this.checked;
-            });
-            
-            document.getElementById('fullscreenBtn').addEventListener('click', function() {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        alert(`全屏请求出错: ${err.message}`);
-                    });
-                } else {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
+            // Initialize Skills Chart
+            const ctx = document.getElementById('skillsChart').getContext('2d');
+            const skillsChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['前端开发', '后端开发', '移动应用', '数据可视化', '数据库', '算法'],
+                    datasets: [{
+                        label: '技能熟练度',
+                        data: [90, 80, 75, 85, 70, 85],
+                        backgroundColor: 'rgba(0, 170, 255, 0.2)',
+                        borderColor: 'rgba(0, 170, 255, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(0, 170, 255, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(0, 170, 255, 1)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
                     }
                 }
             });
             
-            // 信息面板切换
-            const infoBtn = document.getElementById('infoBtn');
-            const planetInfo = document.getElementById('planetInfo');
-            let infoVisible = true;
+            // Animate Skill Bars
+            const skillBars = document.querySelectorAll('.skill-progress');
             
-            infoBtn.addEventListener('click', function() {
-                infoVisible = !infoVisible;
-                planetInfo.style.display = infoVisible ? 'grid' : 'none';
-                this.innerHTML = infoVisible ? '<i class="fa fa-info-circle"></i>' : '<i class="fa fa-info-circle"></i>';
-            });
+            const animateSkillBars = () => {
+                skillBars.forEach(bar => {
+                    const width = bar.getAttribute('data-width');
+                    bar.style.width = width;
+                });
+            };
             
-            // 添加拖动画布功能
-            let isDragging = false;
-            let dragStartX, dragStartY;
-            let offsetX = 0, offsetY = 0;
-            
-            canvas.addEventListener('mousedown', function(e) {
-                isDragging = true;
-                dragStartX = e.clientX - offsetX;
-                dragStartY = e.clientY - offsetY;
-            });
-            
-            canvas.addEventListener('mousemove', function(e) {
-                if (!isDragging) return;
-                offsetX = e.clientX - dragStartX;
-                offsetY = e.clientY - dragStartY;
-            });
-            
-            canvas.addEventListener('mouseup', function() {
-                isDragging = false;
-            });
-            
-            canvas.addEventListener('mouseleave', function() {
-                isDragging = false;
-            });
-            
-            // 缩放动画效果
-            zoomRange.addEventListener('input', function() {
-                const value = parseFloat(this.value);
-                zoomValue.textContent = value.toFixed(1) + 'x';
-                
-                // 添加平滑过渡效果
-                const targetZoom = value;
-                const startZoom = zoomLevel;
-                const duration = 300; // 过渡时间（毫秒）
-                const startTime = performance.now();
-                
-                function animateZoom(currentTime) {
-                    const elapsedTime = currentTime - startTime;
-                    if (elapsedTime < duration) {
-                        const progress = elapsedTime / duration;
-                        zoomLevel = startZoom + (targetZoom - startZoom) * progress;
-                        requestAnimationFrame(animateZoom);
-                    } else {
-                        zoomLevel = targetZoom;
+            // Intersection Observer for Skill Bars
+            const skillsSection = document.getElementById('skills');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        setTimeout(animateSkillBars, 300);
+                        observer.unobserve(entry.target);
                     }
+                });
+            }, { threshold: 0.2 });
+            
+            observer.observe(skillsSection);
+            
+            // Mobile Menu Toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                const icon = mobileMenuButton.querySelector('i');
+                if (mobileMenu.classList.contains('hidden')) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                } else {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                }
+            });
+            
+            // Close Mobile Menu when clicking a link
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                    const icon = mobileMenuButton.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                });
+            });
+            
+            // Experience Tabs
+            const experienceTabs = document.querySelectorAll('.experience-tab');
+            const experienceContents = document.querySelectorAll('.experience-content');
+            
+            experienceTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    experienceTabs.forEach(t => {
+                        t.classList.remove('active', 'text-primary');
+                        t.classList.add('text-gray-700');
+                    });
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active', 'text-primary');
+                    
+                    // Hide all contents
+                    experienceContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // Show corresponding content
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-content`).classList.remove('hidden');
+                });
+            });
+            
+            // Project Filter
+            const projectFilterBtns = document.querySelectorAll('.project-filter-btn');
+            const projectCards = document.querySelectorAll('.project-card');
+            
+            projectFilterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    projectFilterBtns.forEach(b => {
+                        b.classList.remove('active', 'bg-primary', 'text-white');
+                        b.classList.add('bg-gray-200', 'text-gray-700');
+                    });
+                    
+                    // Add active class to clicked button
+                    btn.classList.add('active', 'bg-primary', 'text-white');
+                    btn.classList.remove('bg-gray-200', 'text-gray-700');
+                    
+                    // Filter projects
+                    const filter = btn.getAttribute('data-filter');
+                    
+                    projectCards.forEach(card => {
+                        if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                            card.style.display = 'block';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, 100);
+                        } else {
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                card.style.display = 'none';
+                            }, 300);
+                        }
+                    });
+                });
+            });
+            
+            // Contact Form Submission
+            const contactForm = document.getElementById('contact-form');
+            
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Get form values
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const subject = document.getElementById('subject').value;
+                const message = document.getElementById('message').value;
+                
+                // Simulate form submission
+                alert(`感谢您的留言，${name}！\n我会尽快回复您的邮件：${email}`);
+                
+                // Reset form
+                contactForm.reset();
+            });
+            
+            // Back to Top Button
+            const backToTopButton = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.remove('opacity-0', 'invisible');
+                    backToTopButton.classList.add('opacity-100', 'visible');
+                } else {
+                    backToTopButton.classList.add('opacity-0', 'invisible');
+                    backToTopButton.classList.remove('opacity-100', 'visible');
                 }
                 
-                requestAnimationFrame(animateZoom);
+                // Navbar scroll effect
+                const navbar = document.getElementById('navbar');
+                if (window.pageYOffset > 50) {
+                    navbar.classList.add('py-2', 'shadow-lg');
+                    navbar.classList.remove('py-3');
+                } else {
+                    navbar.classList.add('py-3');
+                    navbar.classList.remove('py-2', 'shadow-lg');
+                }
+                
+                // Highlight active nav link based on scroll position
+                const sections = document.querySelectorAll('section');
+                const navLinks = document.querySelectorAll('.nav-link');
+                
+                let currentSection = '';
+                
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    
+                    if (window.pageYOffset >= sectionTop - 200) {
+                        currentSection = section.getAttribute('id');
+                    }
+                });
+                
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === currentSection) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+            
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             });
         });
     </script>
